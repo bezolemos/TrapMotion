@@ -32,6 +32,7 @@ def calcular_geometria(
 
     return resultados
 
+
 def calcular_mola(
     constante_torsional_mola,
     angulo_inicial_graus,
@@ -40,7 +41,7 @@ def calcular_mola(
     raio_eixo_m,
     raio_roda_m
 ):
-    # --------------------------- Conversões ---------------------------
+    # ---------------- Conversões ----------------
 
     comprimento_haste_m = comprimento_haste_cm / 100
 
@@ -143,6 +144,7 @@ def calcular_mola(
 
     return resultados_mola
 
+
 def calcular_aceleracao_ideal(
     massa_total_carrinho_g,
     forca_tracao_inicial,
@@ -177,6 +179,66 @@ def calcular_aceleracao_ideal(
     }
 
     return resultados_aceleracao
+
+
+def calcular_resistencia_movimento(
+    massa_total_carrinho_g,
+    coeficiente_resistencia_rolamento,
+    forca_tracao_inicial,
+    forca_tracao_atual
+):
+    # Conversão de gramas para quilogramas
+    massa_total_carrinho_kg = (
+        massa_total_carrinho_g / 1000
+    )
+
+    # Peso: P = m * g
+    forca_peso = (
+        massa_total_carrinho_kg * gravidade
+    )
+
+    # Em um plano horizontal,
+    # a força normal é igual ao peso
+    forca_normal = forca_peso
+
+    # Resistência ao rolamento: Frr = Crr * N
+    forca_resistencia_rolamento = (
+        coeficiente_resistencia_rolamento
+        * forca_normal
+    )
+
+    # Força resultante: Fres = Ftracao - Frr
+    forca_resultante_inicial = (
+        forca_tracao_inicial
+        - forca_resistencia_rolamento
+    )
+
+    forca_resultante_atual = (
+        forca_tracao_atual
+        - forca_resistencia_rolamento
+    )
+
+    # Aceleração considerando resistência
+    aceleracao_resistencia_inicial = (
+        forca_resultante_inicial
+        / massa_total_carrinho_kg
+    )
+
+    aceleracao_resistencia_atual = (
+        forca_resultante_atual
+        / massa_total_carrinho_kg
+    )
+
+    return (
+        forca_peso,
+        forca_normal,
+        forca_resistencia_rolamento,
+        forca_resultante_inicial,
+        forca_resultante_atual,
+        aceleracao_resistencia_inicial,
+        aceleracao_resistencia_atual
+    )
+
 
 def calcular_ajustes_para_meta(
     diametro_roda_cm,
@@ -296,21 +358,32 @@ constante_torsional_mola = float(
 )
 
 angulo_inicial_da_mola_em_graus = float(
-    input("Digite o ângulo inicial da mola em graus: ")
+    input(
+        "Digite o ângulo inicial da mola em graus: "
+    )
 )
 
 angulo_atual_da_mola_em_graus = float(
-    input("Digite o ângulo atual da mola em graus: ")
+    input(
+        "Digite o ângulo atual da mola em graus: "
+    )
 )
 
 
 # ---------------- Variável da V3 ----------------
 
 massa_total_carrinho_g = float(
-    input("Digite a massa total do carrinho em g: ")
+    input(
+        "Digite a massa total do carrinho em g: "
+    )
 )
 
 
+# ---------------- Variáveis da V4 ----------------
+
+gravidade = 9.81  # m/s²
+
+coeficiente_resistencia_rolamento = 0.02
 
 
 # ---------------- Validação das entradas ----------------
@@ -352,6 +425,14 @@ if massa_total_carrinho_g <= 0:
     exit()
 
 
+if coeficiente_resistencia_rolamento < 0:
+    print(
+        "O coeficiente de resistência ao rolamento "
+        "não pode ser negativo."
+    )
+    exit()
+
+
 # ---------------- Execução dos cálculos ----------------
 
 resultado_geometria = calcular_geometria(
@@ -377,6 +458,25 @@ resultado_aceleracao = calcular_aceleracao_ideal(
     resultado_mola["forca_tracao_atual"]
 )
 
+
+(
+    forca_peso,
+    forca_normal,
+    forca_resistencia_rolamento,
+    forca_resultante_inicial,
+    forca_resultante_atual,
+    aceleracao_resistencia_inicial,
+    aceleracao_resistencia_atual
+) = calcular_resistencia_movimento(
+    massa_total_carrinho_g,
+    coeficiente_resistencia_rolamento,
+    resultado_mola["forca_tracao_inicial"],
+    resultado_mola["forca_tracao_atual"]
+)
+
+reducao_aceleracao_inicial = (resultado_aceleracao["aceleracao_inicial"] - aceleracao_resistencia_inicial)
+
+reducao_aceleracao_atual = (resultado_aceleracao["aceleracao_atual"] - aceleracao_resistencia_atual)
 
 # ---------------- Resultados da V2 ----------------
 
@@ -462,6 +562,21 @@ print(
     f"{resultado_aceleracao['aceleracao_atual']:.4f} m/s²"
 )
 
+# ---------------- Resultados da V4 -------------------
+print("\n---------------- RESULTADOS DA V4 ----------------")
+
+print(f"coeficiente de resistência ao rolamento: {coeficiente_resistencia_rolamento:.4f}")
+
+print(f"força peso: {forca_peso:.4f} N")
+print(f"força normal: {forca_normal:.4f} N")
+
+print(f"resistência ao rolamento: {forca_resistencia_rolamento:.4f} N")
+
+print(f"força resultante inicial: {forca_resultante_inicial:.4f} N")
+print(f"força resultante atual: {forca_resultante_atual:.4f} N")
+
+print(f"aceleração inicial com resistência: {aceleracao_resistencia_inicial:.4f} m/s²")
+print(f"aceleração atual com resistência: {aceleracao_resistencia_atual:.4f} m/s²")
 
 # ---------------- Interpretação da V3 ----------------
 
@@ -523,6 +638,55 @@ print(
 )
 
 
+# ---------------- Interpretação da V4 ----------------
+
+if forca_resultante_inicial > 0:
+    print(
+        "A força de tração supera a resistência ao rolamento. "
+        "Há aceleração no sentido do movimento."
+    )
+
+elif forca_resultante_inicial == 0:
+    print(
+        "A força de tração e a resistência ao rolamento "
+        "estão equilibradas. A aceleração resultante é zero."
+    )
+
+else:
+    print(
+        "A resistência ao rolamento supera a força de tração."
+    )
+
+    print(
+        "Se o carrinho já estiver em movimento para frente, "
+        "isso indica tendência à desaceleração."
+    )
+
+
+if forca_resultante_atual > 0:
+    print(
+        "A força de tração ainda supera a resistência ao rolamento "
+        "na situação atual."
+    )
+
+elif forca_resultante_atual == 0:
+    print(
+        "A força de tração e a resistência ao rolamento "
+        "estão equilibradas na situação atual."
+    )
+
+else:
+    print(
+        "A resistência ao rolamento agora supera a tração "
+        "na situação atual."
+    )
+
+    print(
+        "Se o carrinho estiver em movimento para frente, "
+        "isso indica tendência à desaceleração."
+    )
+
+
 # ---------------- Verificação da distância ----------------
 
 distancia_calculada_m = (
@@ -539,7 +703,8 @@ porcentagem_meta = (
 
 
 if distancia_calculada_m >= distancia_meta_m:
-    print("\nO carrinho alcançou a meta!")
+    print("\nA geometria do projeto possui alcance teórico "
+    "suficiente para a meta.")
 
     print(
         f"Sobraram {margem_calculada_m:.2f} "
@@ -553,7 +718,8 @@ if distancia_calculada_m >= distancia_meta_m:
 
 
 else:
-    print("\nO carrinho não alcançou a meta.")
+    print("\nA geometria do projeto não possui alcance teórico "
+    "suficiente para a meta.")
 
     print(
         f"Faltaram {abs(margem_calculada_m):.2f} "
@@ -602,7 +768,8 @@ else:
 # ---------------- Limitações do modelo ----------------
 
 print(
-    "\n⚠ Este resultado é idealizado e ainda não considera "
-    "atrito, resistência ao rolamento, resistência do ar, "
-    "derrapagem, inércia rotacional ou perdas mecânicas."
+    "\n⚠ Este resultado ainda é simplificado. "
+    "A V4 considera a resistência ao rolamento, mas ainda não "
+    "considera resistência do ar, derrapagem, inércia rotacional "
+    "ou outras perdas mecânicas."
 )
