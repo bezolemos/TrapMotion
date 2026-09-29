@@ -1,108 +1,108 @@
 # TrapMotion
 
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
-![Status](https://img.shields.io/badge/status-in%20development-F5A623)
-![Project](https://img.shields.io/badge/type-educational%20physics%20simulator-6A5ACD)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-F5A623)
+![Project](https://img.shields.io/badge/tipo-simulador%20educacional%20de%20f%C3%ADsica-6A5ACD)
 
-**TrapMotion** is a Python-based physics simulator for designing and analyzing mousetrap-powered cars.
+**TrapMotion** é um simulador de física desenvolvido em Python para projetar e analisar carrinhos movidos por ratoeira.
 
-The project combines programming, mathematics, and mechanics to estimate how design choices—such as wheel diameter, axle diameter, string length, spring strength, and vehicle mass—affect the car's theoretical performance.
+O projeto combina programação, matemática e mecânica para estimar como diferentes escolhas de projeto — como diâmetro das rodas, diâmetro do eixo, comprimento da corda, força da mola e massa do veículo — afetam o desempenho teórico do carrinho.
 
-The long-term goal is to build a tool that not only calculates results, but also explains **why** each design choice helps or limits the vehicle.
+O objetivo de longo prazo é construir uma ferramenta que não apenas calcule os resultados, mas também explique **por que** cada escolha de projeto ajuda ou limita o veículo.
 
-> This project is being developed incrementally. Each version adds a new layer to the physical model while keeping the calculations understandable and testable.
+> Este projeto está sendo desenvolvido de forma incremental. Cada versão adiciona uma nova camada ao modelo físico, mantendo os cálculos compreensíveis e testáveis.
 
-## Project goals
+## Objetivos do projeto
 
-- Estimate whether a mousetrap car can reach a target distance, such as **10 meters**.
-- Explain the physical effect of each design parameter.
-- Compare theoretical performance across different vehicle configurations.
-- Identify limitations such as rolling resistance, insufficient traction, and energy losses.
-- Suggest design improvements based on the simulation results.
-- Present the results through diagnostics, recommendations, and graphs in future versions.
+- Estimar se um carrinho movido por ratoeira consegue atingir uma distância-alvo, como **10 metros**.
+- Explicar o efeito físico de cada parâmetro do projeto.
+- Comparar o desempenho teórico entre diferentes configurações do veículo.
+- Identificar limitações como resistência ao rolamento, tração insuficiente e perdas de energia.
+- Sugerir melhorias no projeto com base nos resultados da simulação.
+- Apresentar os resultados por meio de diagnósticos, recomendações e gráficos em versões futuras.
 
-## Current features
+## Funcionalidades atuais
 
-TrapMotion currently includes four completed simulation stages:
+O TrapMotion atualmente possui quatro etapas de simulação concluídas:
 
-### V1 — Geometry and theoretical range
+### V1 — Geometria e alcance teórico
 
-Calculates:
+Calcula:
 
-- wheel and axle radius;
-- wheel and axle circumference;
-- number of axle rotations produced by the string;
-- theoretical distance traveled;
-- comparison between the theoretical distance and the target distance.
+- raio da roda e do eixo;
+- circunferência da roda e do eixo;
+- número de rotações do eixo produzidas pela corda;
+- distância teórica percorrida;
+- comparação entre a distância teórica e a distância-alvo.
 
-The main geometric relationship is:
+A principal relação geométrica utilizada é:
 
 ```text
-theoretical distance = axle rotations × wheel circumference
+distância teórica = rotações do eixo × circunferência da roda
 ```
 
-### V2 — Spring, torque, and force transmission
+### V2 — Mola, torque e transmissão de força
 
-Adds a simplified torsion-spring model and calculates:
+Adiciona um modelo simplificado de mola de torção e calcula:
 
-- initial and current spring torque;
-- stored and released elastic energy;
-- string tension;
-- torque transmitted to the axle;
-- ideal traction force at the wheels;
-- remaining spring energy.
+- torque inicial e atual da mola;
+- energia elástica armazenada e liberada;
+- tensão na corda;
+- torque transmitido ao eixo;
+- força de tração ideal nas rodas;
+- energia restante na mola.
 
-Main equations:
+Principais equações:
 
 ```text
 τ = k × θ
 E = 1/2 × k × θ²
 T = τ / L
-τ_axle = T × r_axle
-F_traction = τ_axle / r_wheel
+τ_eixo = T × r_eixo
+F_tração = τ_eixo / r_roda
 ```
 
-### V3 — Mass and ideal acceleration
+### V3 — Massa e aceleração ideal
 
-Introduces the total mass of the vehicle and applies Newton's second law:
+Introduz a massa total do veículo e aplica a segunda lei de Newton:
 
 ```text
 a = F / m
 ```
 
-This version estimates the car's ideal acceleration before resistance and traction limits are considered.
+Essa versão estima a aceleração ideal do carrinho antes de considerar resistências e limites de tração.
 
-### V4 — Rolling resistance and net force
+### V4 — Resistência ao rolamento e força resultante
 
-Adds the force that opposes the motion of the vehicle:
+Adiciona a força que se opõe ao movimento do veículo:
 
 ```text
-F_weight = m × g
-F_normal = F_weight
-F_rolling = μ_rr × F_normal
-F_net = F_traction - F_rolling
-a_real = F_net / m
+F_peso = m × g
+F_normal = F_peso
+F_rolamento = μ_rr × F_normal
+F_resultante = F_tração - F_rolamento
+a_real = F_resultante / m
 ```
 
-This makes the result more realistic by checking whether the available traction force is sufficient to overcome rolling resistance.
+Isso torna o resultado mais realista ao verificar se a força de tração disponível é suficiente para superar a resistência ao rolamento.
 
-## Roadmap
+## Roteiro de desenvolvimento
 
-| Version | Stage | Status |
+| Versão | Etapa | Status |
 |---|---|---|
-| V1 | Geometry and theoretical range | ✅ Completed |
-| V2 | Spring, torque, and force transmission | ✅ Completed |
-| V3 | Mass and ideal acceleration | ✅ Completed |
-| V4 | Rolling resistance and net force | ✅ Completed |
-| V5 | Wheel grip and traction limit | 🚧 In development |
-| V6 | Motion over time | 📋 Planned |
-| V7 | Speed, position, and traveled distance | 📋 Planned |
-| V8 | Verification of the 10-meter target | 📋 Planned |
-| V9 | Design analysis and improvement suggestions | 📋 Planned |
-| V10 | Graphs and result visualization | 📋 Planned |
-| V11 | Final interface and complete integration | 📋 Planned |
+| V1 | Geometria e alcance teórico | ✅ Concluída |
+| V2 | Mola, torque e transmissão de força | ✅ Concluída |
+| V3 | Massa e aceleração ideal | ✅ Concluída |
+| V4 | Resistência ao rolamento e força resultante | ✅ Concluída |
+| V5 | Aderência das rodas e limite de tração | 🚧 Em desenvolvimento |
+| V6 | Movimento ao longo do tempo | 📋 Planejada |
+| V7 | Velocidade, posição e distância percorrida | 📋 Planejada |
+| V8 | Verificação da meta de 10 metros | 📋 Planejada |
+| V9 | Análise do projeto e sugestões de melhoria | 📋 Planejada |
+| V10 | Gráficos e visualização dos resultados | 📋 Planejada |
+| V11 | Interface final e integração completa | 📋 Planejada |
 
-## Project structure
+## Estrutura do projeto
 
 ```text
 TrapMotion/
@@ -117,44 +117,44 @@ TrapMotion/
 └── simulador_v4.py
 ```
 
-- `simulador_vN.py`: executable Python simulation for each development stage.
-- `modelo_vN.md`: documentation of the equations, variables, assumptions, and tests used in that version.
+- `simulador_vN.py`: simulação executável em Python correspondente a cada etapa de desenvolvimento.
+- `modelo_vN.md`: documentação das equações, variáveis, suposições e testes utilizados em cada versão.
 
-## Requirements
+## Requisitos
 
 - Python 3.x
-- No external libraries are currently required.
+- Atualmente não são necessárias bibliotecas externas.
 
-The project uses only Python's standard library.
+O projeto utiliza apenas a biblioteca padrão do Python.
 
-## Installation
+## Instalação
 
-Clone the repository:
+Clone o repositório:
 
 ```bash
 git clone https://github.com/bezolemos/TrapMotion.git
 cd TrapMotion
 ```
 
-Alternatively, download the repository as a ZIP file and extract it on your computer.
+Como alternativa, você pode baixar o repositório como um arquivo ZIP e extraí-lo no seu computador.
 
-## How to run
+## Como executar
 
-Run the latest completed version:
+Execute a versão concluída mais recente:
 
 ```bash
 python simulador_v4.py
 ```
 
-On some systems, the command may be:
+Em alguns sistemas, o comando pode ser:
 
 ```bash
 python3 simulador_v4.py
 ```
 
-The program will request the physical parameters of the mousetrap car and then display the calculated results and diagnostics.
+O programa solicitará os parâmetros físicos do carrinho movido por ratoeira e, em seguida, exibirá os resultados calculados e os diagnósticos.
 
-You can also run an earlier version to study how the simulator evolved:
+Também é possível executar versões anteriores para acompanhar a evolução do simulador:
 
 ```bash
 python simulador_v1.py
@@ -162,109 +162,111 @@ python simulador_v2.py
 python simulador_v3.py
 ```
 
-## Main input parameters
+## Principais parâmetros de entrada
 
-| Parameter | Symbol | Unit | Description |
+| Parâmetro | Símbolo | Unidade | Descrição |
 |---|---:|---:|---|
-| Wheel diameter | `d_wheel` | cm | Diameter of the drive wheels |
-| Axle diameter | `d_axle` | cm | Diameter of the axle where the string is wound |
-| String length | `L_string` | cm | Useful length of the string |
-| Lever-arm length | `L` | cm or m | Distance from the spring axis to the string attachment point |
-| Spring torsional constant | `k` | N·m/rad | Stiffness of the mousetrap spring |
-| Spring angle | `θ` | degrees or radians | Angular displacement of the spring |
-| Vehicle mass | `m` | g or kg | Total mass of the car |
-| Rolling resistance coefficient | `μ_rr` | dimensionless | Simplified resistance between the wheels and the surface |
-| Target distance | `d_target` | m | Distance the vehicle is expected to reach |
+| Diâmetro da roda | `d_roda` | cm | Diâmetro das rodas de tração |
+| Diâmetro do eixo | `d_eixo` | cm | Diâmetro do eixo onde a corda é enrolada |
+| Comprimento da corda | `L_corda` | cm | Comprimento útil da corda |
+| Comprimento da haste | `L` | cm ou m | Distância entre o eixo da mola e o ponto de fixação da corda |
+| Constante torsional da mola | `k` | N·m/rad | Rigidez da mola da ratoeira |
+| Ângulo da mola | `θ` | graus ou radianos | Deslocamento angular da mola |
+| Massa do veículo | `m` | g ou kg | Massa total do carrinho |
+| Coeficiente de resistência ao rolamento | `μ_rr` | adimensional | Resistência simplificada entre as rodas e a superfície |
+| Distância-alvo | `d_alvo` | m | Distância que o veículo deve atingir |
 
-All values are converted to SI units before the main physical calculations whenever necessary.
+Todos os valores são convertidos para unidades do SI antes dos principais cálculos físicos, quando necessário.
 
-## Physical model
+## Modelo físico
 
-The simulator follows the energy and force transfer through the vehicle:
+O simulador acompanha a transferência de energia e força ao longo do veículo:
 
 ```mermaid
 flowchart TD
-    A[Mousetrap spring] --> B[Lever arm]
-    B --> C[String tension]
-    C --> D[Axle torque]
-    D --> E[Wheel traction]
-    E --> F[Net force]
-    F --> G[Vehicle acceleration]
+    A[Mola da ratoeira] --> B[Haste]
+    B --> C[Tensão na corda]
+    C --> D[Torque no eixo]
+    D --> E[Tração das rodas]
+    E --> F[Força resultante]
+    F --> G[Aceleração do veículo]
 ```
 
-The geometry determines the theoretical range, while the spring supplies torque and energy. That torque is transmitted through the lever arm and string to the axle. The wheels convert axle torque into traction force, which must overcome the forces resisting motion.
+A geometria determina o alcance teórico, enquanto a mola fornece torque e energia. Esse torque é transmitido pela haste e pela corda até o eixo. As rodas convertem o torque do eixo em força de tração, que precisa superar as forças que resistem ao movimento.
 
-## Assumptions and current limitations
+## Suposições e limitações atuais
 
-The current version is an educational model, not a complete engineering simulation. It assumes that:
+A versão atual é um modelo educacional, e não uma simulação completa de engenharia.
 
-- the surface is level;
-- the string does not stretch;
-- the wheels and axle remain aligned;
-- the torsional spring behaves approximately linearly;
-- rolling resistance is represented by a constant coefficient;
-- the transmission of force is simplified;
-- component deformation and mechanical imperfections are ignored.
+O modelo considera que:
 
-The current version does **not yet** fully model:
+- a superfície é plana;
+- a corda não se estica;
+- as rodas e o eixo permanecem alinhados;
+- a mola de torção se comporta aproximadamente de forma linear;
+- a resistência ao rolamento é representada por um coeficiente constante;
+- a transmissão de força é simplificada;
+- deformações dos componentes e imperfeições mecânicas são ignoradas.
 
-- wheel slipping and maximum grip;
-- rotational inertia of the wheels;
-- motion as a function of time;
-- changes in speed and position;
-- aerodynamic drag;
-- detailed friction in the axle and bearings;
-- experimental calibration with a real vehicle.
+A versão atual **ainda não modela completamente**:
 
-Because of these simplifications, the results should be interpreted as theoretical estimates rather than guaranteed real-world performance.
+- derrapagem das rodas e aderência máxima;
+- inércia rotacional das rodas;
+- movimento em função do tempo;
+- variações de velocidade e posição;
+- resistência aerodinâmica;
+- atrito detalhado no eixo e nos rolamentos;
+- calibração experimental utilizando um veículo real.
 
-## Development approach
+Devido a essas simplificações, os resultados devem ser interpretados como estimativas teóricas, e não como garantias de desempenho no mundo real.
 
-Each version of TrapMotion follows the same process:
+## Método de desenvolvimento
 
-1. Define the physical problem.
-2. Explain the required equations and units.
-3. Perform a manual test with expected values.
-4. Implement one new physical effect at a time.
-5. Validate user input.
-6. Compare the program output with the manual calculation.
-7. Document the model, assumptions, and limitations.
+Cada versão do TrapMotion segue o mesmo processo:
 
-This incremental approach makes the project easier to understand, test, and improve.
+1. Definir o problema físico.
+2. Explicar as equações e unidades necessárias.
+3. Realizar um teste manual com valores esperados.
+4. Implementar um novo efeito físico por vez.
+5. Validar as entradas fornecidas pelo usuário.
+6. Comparar o resultado do programa com o cálculo manual.
+7. Documentar o modelo, suas suposições e limitações.
 
-## Educational purpose
+Essa abordagem incremental torna o projeto mais fácil de compreender, testar e melhorar.
 
-TrapMotion was created as an interdisciplinary project involving:
+## Objetivo educacional
 
-- Python programming;
-- algorithmic thinking;
-- mathematical modeling;
-- classical mechanics;
-- engineering design;
-- software documentation;
-- experimental validation.
+O TrapMotion foi criado como um projeto interdisciplinar envolvendo:
 
-The project is also part of my programming portfolio and demonstrates the evolution of a simulation from a simple geometric calculator into a more complete physics-based design tool.
+- programação em Python;
+- pensamento algorítmico;
+- modelagem matemática;
+- mecânica clássica;
+- projeto de engenharia;
+- documentação de software;
+- validação experimental.
 
-## Future vision
+O projeto também faz parte do meu portfólio de programação e demonstra a evolução de uma simulação, começando como uma calculadora geométrica simples e evoluindo para uma ferramenta mais completa de análise física e de projeto.
 
-The final version is planned to include:
+## Visão futura
 
-- complete movement simulation;
-- distance, time, speed, and acceleration calculations;
-- verification of whether the car reaches 10 meters;
-- automatic design diagnostics;
-- optimization suggestions;
-- graphs showing the vehicle's behavior;
-- a user-friendly interface;
-- comparison between theoretical and experimental results.
+A versão final está planejada para incluir:
 
-## Author
+- simulação completa do movimento;
+- cálculos de distância, tempo, velocidade e aceleração;
+- verificação automática de alcance da meta de 10 metros;
+- diagnósticos automáticos do projeto;
+- sugestões de otimização;
+- gráficos mostrando o comportamento do veículo;
+- interface amigável para o usuário;
+- comparação entre resultados teóricos e experimentais.
 
-Developed by **Bernardo Lemos**.
+## Autor
+
+Desenvolvido por **Bernardo Lemos**.
 
 - GitHub: [@bezolemos](https://github.com/bezolemos)
 
 ---
 
-If you found this project interesting, feel free to explore the different versions and follow its development.
+Se você achou este projeto interessante, fique à vontade para explorar as diferentes versões e acompanhar seu desenvolvimento.
