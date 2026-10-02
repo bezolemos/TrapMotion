@@ -436,6 +436,7 @@ comprimento_corda_m = comprimento_corda_cm / 100
 
 posicao_atual_m = 0.0
 
+
 # ---------------- Validação das entradas ----------------
 
 if (
@@ -727,10 +728,65 @@ if meta_atingida == True:
             tempo_meta_atingida = historico_tempo[i]
             break
 
+# --------------------- Cálculos da V9 ----------------------
+alcance_geometrico_suficiente = resultado_geometria["distancia_teorica_m"] >= distancia_meta_m
+forca_inicial_suficiente = forca_tracao_util_inicial > forca_resistencia_rolamento
+aderencia_limitando = resultado_mola["forca_tracao_inicial"] > forca_aderencia_maxima
+corda_limitando_impulsao = motivo_encerramento == "corda_finalizada"
+
+mola_finalizada_v9 = angulo_atual_rad <= 0 or math.isclose(angulo_atual_rad, 0, abs_tol=1e-9)
+corda_finalizada_v9 = corda_desenrolada_total_m >= comprimento_corda_m
+
+match (mola_finalizada_v9, corda_finalizada_v9):
+    case (False, True):
+        estado_fim_impulsao = "corda_terminou_primeiro"
+
+    case (True, False):
+        estado_fim_impulsao = "mola_terminou_primeiro"
+
+    case (True, True):
+        estado_fim_impulsao = "ambos_finalizados"
+
+    case (False, False):
+        estado_fim_impulsao = "outro_encerramento"
+
+# Lista de diagnósticos
+diagnosticos_v9 = []
+
+if not alcance_geometrico_suficiente:
+    diagnosticos_v9.append("alcance_geometrico_insuficiente")
+
+if not forca_inicial_suficiente:
+    diagnosticos_v9.append("forca_inicial_insuficiente")
+
+if aderencia_limitando:
+    diagnosticos_v9.append("aderencia_limitando")
+
+if estado_fim_impulsao == "corda_terminou_primeiro":
+    diagnosticos_v9.append("corda_terminou_primeiro")
+elif estado_fim_impulsao == "mola_terminou_primeiro":
+    diagnosticos_v9.append("mola_terminou_primeiro")    
+
+recomendacoes_v9 = []
 
 
+if resultado_meta == "meta_nao_atingida":
+    if "alcance_geometrico_insuficiente" in diagnosticos_v9:
+        recomendacoes_v9.append("ajustar_geometria_para_aumentar_alcance")
+    if "forca_inicial_insuficiente" in diagnosticos_v9:
+        if aderencia_limitando:
+            recomendacoes_v9.append("melhorar_aderencia_ou_reduzir_resistencia")
+        else: 
+            recomendacoes_v9.append("aumentar_forca_tracao")
 
-# ---------------- Resultados da V2 ----------------
+    if "corda_terminou_primeiro" in diagnosticos_v9:
+        recomendacoes_v9.append("revisar_comprimento_corda")
+    if "mola_terminou_primeiro" in diagnosticos_v9:
+        recomendacoes_v9.append("revisar_relacao_mola_corda")
+    if not recomendacoes_v9:
+        recomendacoes_v9.append("revisar_parametros_gerais_design")
+
+ # ---------------- Resultados da V2 ----------------
 
 print("\n---------------- RESULTADOS DA V2 ----------------")
 
@@ -1174,14 +1230,58 @@ else:
         "\n⚠ Cada alternativa foi calculada separadamente, "
         "mantendo as outras medidas iguais."
     )
+# ---------------- Análise da V9 ----------------
+
+print("\n---------------- ANÁLISE DA V9 ----------------")
+
+if resultado_meta == "meta_atingida":
+    print("✅ O projeto atingiu a meta.")
+
+elif resultado_meta == "meta_nao_atingida":
+    print("❌ O projeto não atingiu a meta.")
+
+else:
+    print("⚠ Não foi possível concluir se o projeto atingiria a meta.")
+
+if diagnosticos_v9:
+    print("\nDiagnósticos:")
+
+for diagnostico in diagnosticos_v9:
+    if diagnostico == "alcance_geometrico_insuficiente":
+        print("⚠ O alcance geométrico do projeto está abaixo da meta.")
+    elif diagnostico == "forca_inicial_insuficiente":
+        print("⚠ A força de tração inicial é insuficiente para superar a resistência ao rolamento.")
+    elif diagnostico == "aderencia_limitando":
+        print("⚠ A força de tração inicial excede a aderência máxima, o que pode causar derrapagem.")
+    elif diagnostico == "corda_terminou_primeiro":
+        print("⚠ A corda se desenrolou completamente antes da mola terminar de liberar energia.")
+    elif diagnostico == "mola_terminou_primeiro":
+        print("⚠ A mola terminou de liberar energia antes da corda se desenrolar completamente.")
+
+if recomendacoes_v9:
+    print("\nRecomendações:")
+for recomendacao in recomendacoes_v9:
+    if recomendacao == "ajustar_geometria_para_aumentar_alcance":
+        print("💡 Considere ajustar a geometria do projeto para aumentar o alcance.")
+    elif recomendacao == "melhorar_aderencia_ou_reduzir_resistencia":
+        print("💡 Considere melhorar a aderência ou reduzir a resistência ao rolamento.")
+    elif recomendacao == "aumentar_forca_tracao":
+        print("💡 Considere aumentar a força de tração inicial.")
+    elif recomendacao == "revisar_comprimento_corda":
+        print("💡 Considere revisar o comprimento da corda.")
+    elif recomendacao == "revisar_relacao_mola_corda":
+        print("💡 Considere revisar a relação entre a mola e a corda.")
+    elif recomendacao == "revisar_parametros_gerais_design":
+        print("💡 Revise os parâmetros gerais do projeto para identificar outras limitações do design.")
+
 
 
 # ---------------- Limitações do modelo ----------------
 
 print(
     "\n⚠ Este resultado ainda é simplificado. "
-    "A V6 simula a evolução do movimento durante a fase "
-    "impulsionada pela mola utilizando passos discretos de tempo. "
+    "O RatoeiraLab simula o movimento utilizando passos "
+    "discretos de tempo. "
     "O modelo considera resistência ao rolamento e limite de "
     "aderência, mas ainda não simula detalhadamente patinagem, "
     "atrito cinético, distribuição de peso entre os eixos, "
