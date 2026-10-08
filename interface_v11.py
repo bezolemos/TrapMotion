@@ -11,7 +11,11 @@ from tkinter import messagebox, scrolledtext, ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 
-from simulacao import calcular_constante_torsional, executar_simulacao
+from simulacao import (
+    calcular_constante_torsional,
+    converter_massa_balanca_para_forca,
+    executar_simulacao,
+)
 
 
 class TrapMotionApp(tk.Tk):
@@ -113,11 +117,14 @@ class TrapMotionApp(tk.Tk):
         self.frame_sabe = ttk.Frame(self.opcoes_mola)
         self.frame_nao_sabe = ttk.Frame(self.opcoes_mola)
         self._adicionar_campo(self.frame_sabe, 0, "Constante k (N·m/rad)", "constante")
-        self._adicionar_campo(self.frame_nao_sabe, 0, "Força perpendicular medida (N)", "forca")
-        self._adicionar_campo(self.frame_nao_sabe, 1, "Ângulo medido (graus)", "angulo_medicao")
+        self._adicionar_campo(self.frame_nao_sabe, 0, "Massa indicada na balança (g)", "massa_balanca")
+        self._adicionar_campo(self.frame_nao_sabe, 1, "Ângulo da haste na medição (graus)", "angulo_medicao")
         ttk.Label(
             self.frame_nao_sabe,
-            text="A medição deve usar a haste e ângulo relativo à posição relaxada.",
+            text=("Como medir: deixe a posição relaxada como referência, gire a haste "
+                  "até o ângulo escolhido e pressione sua ponta perpendicularmente sobre "
+                  "uma balança. Digite aqui a massa mostrada em gramas. O TrapMotion "
+                  "converte automaticamente para Newtons."),
             wraplength=330,
         ).pack(anchor="w", pady=3)
 
@@ -196,7 +203,7 @@ class TrapMotionApp(tk.Tk):
         exemplos = {
             "roda": "10", "eixo": "1", "corda": "100", "haste": "15",
             "massa": "200", "meta": "10", "constante": "0.2",
-            "forca": "2.0944", "angulo_medicao": "90",
+            "massa_balanca": "213.5", "angulo_medicao": "90",
             "angulo_inicial": "90", "angulo_atual": "90",
         }
         for chave, valor in exemplos.items():
@@ -237,9 +244,15 @@ class TrapMotionApp(tk.Tk):
             if self.conhece_constante.get() == "sim":
                 k = self._ler_numero("constante", "Constante torsional")
             else:
-                forca = self._ler_numero("forca", "Força medida")
-                angulo_medido = self._ler_numero("angulo_medicao", "Ângulo medido")
-                k = calcular_constante_torsional(forca, haste, angulo_medido)
+                massa_balanca_g = self._ler_numero(
+                    "massa_balanca", "Massa indicada na balança"
+                )
+                angulo_medido = self._ler_numero(
+                    "angulo_medicao", "Ângulo da haste na medição"
+                )
+                # A balança mostra gramas; o motor converte para Newtons (F = m * g).
+                forca_n = converter_massa_balanca_para_forca(massa_balanca_g)
+                k = calcular_constante_torsional(forca_n, haste, angulo_medido)
 
             # Uma só chamada substitui toda a física que ficava na interface.
             resultado = executar_simulacao(

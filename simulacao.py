@@ -11,6 +11,18 @@ PASSO_TEMPO = 0.005  # s
 TEMPO_MAXIMO = 60.0  # s
 
 
+def converter_massa_balanca_para_forca(massa_balanca_g):
+    """Converte a leitura de uma balança (g) para força equivalente (N).
+
+    A balança informa uma massa equivalente. Para o modelo usamos F = m * g.
+    """
+    if not isinstance(massa_balanca_g, (int, float)) or not math.isfinite(massa_balanca_g):
+        raise ValueError("A leitura da balança deve ser um número válido e finito.")
+    if massa_balanca_g <= 0:
+        raise ValueError("A leitura da balança deve ser maior que zero.")
+    return (massa_balanca_g / 1000) * GRAVIDADE
+
+
 def calcular_constante_torsional(forca_n, comprimento_haste_cm, angulo_graus):
     """Estima k = (F * L) / θ com força perpendicular à haste.
 
